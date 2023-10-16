@@ -1,0 +1,25 @@
+deploy-dev:
+  stage: deploy
+  script:
+    - export RELEASE_TAG=$(cat .version)
+    - |
+      curl -X PUT $DEV_VERSION_MANAGER_URL/update-image \
+      -u $DEV_VERSION_MANAGER_AUTH \
+      -H "Secret: $DEV_VERSION_MANAGER_API_SECRET" \
+      -H "Content-Type: application/json" \
+      --data '{ "service": "'$CI_PROJECT_NAME'", "image": "'$CI_REGISTRY_IMAGE':'$RELEASE_TAG'" }'
+  when: manual
+
+trigger-deploy-dev:
+  stage: deploy
+  trigger:
+    project: mein-recycling/deployment
+    branch: dev
+    strategy: depend
+  variables:
+    TRIGGER_SPECIFIC_JOB: $CI_PROJECT_NAME
+    TRIGGER_ENVIRONMENT: "dev"
+  when: on_success
+  needs:
+    - job: deploy-dev
+
