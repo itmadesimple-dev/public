@@ -12,11 +12,11 @@
   trigger:
     project: mein-recycling/deployment
     strategy: depend
-  variables:
-    TRIGGER_SPECIFIC_JOB: $CI_PROJECT_NAME
   when: on_success
   needs:
     - job: deploy-dev
+  variables:
+    TRIGGER_SPECIFIC_JOB: $CI_PROJECT_NAME
 
 deploy-dev:
   stage: deploy
@@ -28,12 +28,16 @@ deploy-dev:
   when: manual
 
 trigger-deploy-dev:
-  <<: *default_trigger
+  stage: deploy
   trigger:
-    <<: *default_trigger.trigger
+    project: mein-recycling/deployment
+    strategy: depend
     branch: dev
+  when: on_success
+  needs:
+    - job: deploy-dev
   variables:
-    <<: *default_trigger.variables
+    TRIGGER_SPECIFIC_JOB: $CI_PROJECT_NAME
     TRIGGER_ENVIRONMENT: "dev"
 
 deploy-prod:
@@ -46,10 +50,14 @@ deploy-prod:
   when: manual
 
 trigger-deploy-prod:
-  <<: *default_trigger
+  stage: deploy
   trigger:
-    <<: *default_trigger.trigger
+    project: mein-recycling/deployment
+    strategy: depend
     branch: prod
+  when: on_success
+  needs:
+    - job: deploy-dev
   variables:
-    <<: *default_trigger.variables
+    TRIGGER_SPECIFIC_JOB: $CI_PROJECT_NAME
     TRIGGER_ENVIRONMENT: "prod"
