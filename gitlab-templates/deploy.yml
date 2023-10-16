@@ -33,7 +33,9 @@ trigger-deploy-dev:
     project: mein-recycling/deployment
     strategy: depend
     branch: dev
-  when: on_success
+  rules:
+    - if: '$CI_JOB_STATUS == "success"'
+      when: always
   needs:
     - job: deploy-dev
   variables:
@@ -55,7 +57,9 @@ trigger-deploy-prod:
     project: mein-recycling/deployment
     strategy: depend
     branch: prod
-  when: on_success
+  rules:
+    - if: '$CI_JOB_STATUS == "success"'
+      when: always
   needs:
     - job: deploy-prod
   variables:
