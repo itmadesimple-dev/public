@@ -1,67 +1,35 @@
-.default_deploy_script: &default_deploy_script
-  - export RELEASE_TAG=$(cat .version)
-  - |
-    curl -X PUT $VERSION_MANAGER_URL/update-image \
-    -u $VERSION_MANAGER_AUTH \
-    -H "Secret: $VERSION_MANAGER_API_SECRET" \
-    -H "Content-Type: application/json" \
-    --data '{ "service": "'$CI_PROJECT_NAME'", "image": "'$CI_REGISTRY_IMAGE':'$RELEASE_TAG'" }'
-
-.default_trigger: &default_trigger
-  stage: deploy
-  trigger:
-    project: mein-recycling/deployment
-    strategy: depend
-  when: on_success
-  needs:
-    - job: deploy-dev
-  variables:
-    TRIGGER_SPECIFIC_JOB: $CI_PROJECT_NAME
-
 deploy-dev:
   stage: deploy
-  script: *default_deploy_script
-  variables:
-    VERSION_MANAGER_URL: $DEV_VERSION_MANAGER_URL
-    VERSION_MANAGER_AUTH: $DEV_VERSION_MANAGER_AUTH
-    VERSION_MANAGER_API_SECRET: $DEV_VERSION_MANAGER_API_SECRET
+  script:
+    - |
+      curl -X PUT $DEV_VERSION_MANAGER_URL/update-image \
+      -u $DEV_VERSION_MANAGER_AUTH \
+      -H "Secret: $DEV_VERSION_MANAGER_API_SECRET" \
+      -H "Content-Type: application/json" \
+      --data '{ "service": "'$CI_PROJECT_NAME'", "image": "'$CI_REGISTRY_IMAGE':'$RELEASE_TAG'" }'
+    - |
+      curl --request POST \
+      --form token=$DEPLOY_TRIGGER_TOKEN \
+      --form ref=dev \
+      --form "variables[TRIGGER_SPECIFIC_JOB]=$CI_PROJECT_NAME" \
+      --form "variables[TRIGGER_ENVIRONMENT]=dev" \
+      https://gitlab.com/api/v4/projects/$DEPLOY_PROJECT_ID/trigger/pipeline
   when: manual
-
-trigger-deploy-dev:
-  stage: deploy
-  trigger:
-    project: mein-recycling/deployment
-    strategy: depend
-    branch: dev
-  rules:
-    - if: '$CI_JOB_STATUS == "success"'
-      when: always
-  needs:
-    - job: deploy-dev
-  variables:
-    TRIGGER_SPECIFIC_JOB: $CI_PROJECT_NAME
-    TRIGGER_ENVIRONMENT: "dev"
 
 deploy-prod:
   stage: deploy
-  script: *default_deploy_script
-  variables:
-    VERSION_MANAGER_URL: $PROD_VERSION_MANAGER_URL
-    VERSION_MANAGER_AUTH: $PROD_VERSION_MANAGER_AUTH
-    VERSION_MANAGER_API_SECRET: $PROD_VERSION_MANAGER_API_SECRET
+  script:
+    - |
+      curl -X PUT $PROD_VERSION_MANAGER_URL/update-image \
+      -u $PROD_VERSION_MANAGER_AUTH \
+      -H "Secret: $PROD_VERSION_MANAGER_API_SECRET" \
+      -H "Content-Type: application/json" \
+      --data '{ "service": "'$CI_PROJECT_NAME'", "image": "'$CI_REGISTRY_IMAGE':'$RELEASE_TAG'" }'
+    - |
+      curl --request POST \
+      --form token=$DEPLOY_TRIGGER_TOKEN \
+      --form ref=prod \
+      --form "variables[TRIGGER_SPECIFIC_JOB]=$CI_PROJECT_NAME" \
+      --form "variables[TRIGGER_ENVIRONMENT]=prod" \
+      https://gitlab.com/api/v4/projects/$DEPLOY_PROJECT_ID/trigger/pipeline
   when: manual
-
-trigger-deploy-prod:
-  stage: deploy
-  trigger:
-    project: mein-recycling/deployment
-    strategy: depend
-    branch: prod
-  rules:
-    - if: '$CI_JOB_STATUS == "success"'
-      when: always
-  needs:
-    - job: deploy-prod
-  variables:
-    TRIGGER_SPECIFIC_JOB: $CI_PROJECT_NAME
-    TRIGGER_ENVIRONMENT: "prod"
