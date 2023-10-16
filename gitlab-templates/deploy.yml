@@ -1,6 +1,7 @@
 deploy-dev:
   stage: deploy
   script:
+    - export RELEASE_TAG=$(cat .version)
     - |
       curl -X PUT $DEV_VERSION_MANAGER_URL/update-image \
       -u $DEV_VERSION_MANAGER_AUTH \
@@ -19,6 +20,7 @@ deploy-dev:
 deploy-prod:
   stage: deploy
   script:
+    - export RELEASE_TAG=$(cat .version)
     - |
       curl -X PUT $PROD_VERSION_MANAGER_URL/update-image \
       -u $PROD_VERSION_MANAGER_AUTH \
