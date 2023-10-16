@@ -57,7 +57,7 @@ trigger-deploy-prod:
     branch: prod
   when: on_success
   needs:
-    - job: deploy-dev
+    - job: deploy-prod
   variables:
     TRIGGER_SPECIFIC_JOB: $CI_PROJECT_NAME
     TRIGGER_ENVIRONMENT: "prod"
