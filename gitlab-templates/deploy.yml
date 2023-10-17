@@ -6,6 +6,7 @@ deploy-dev:
       - main
       - merge_requests
   script:
+    - apt-get update && apt-get install -y jq
     - export RELEASE_TAG=$(cat .version)
     - |
       curl -X PUT $DEV_VERSION_MANAGER_URL/update-image \
@@ -31,6 +32,7 @@ deploy-prod:
       - master
       - main
   script:
+    - apt-get update && apt-get install -y jq
     - export RELEASE_TAG=$(cat .version)
     - |
       curl -X PUT $PROD_VERSION_MANAGER_URL/update-image \
