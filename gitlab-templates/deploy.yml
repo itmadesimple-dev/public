@@ -41,12 +41,12 @@ deploy-prod:
       -H "Content-Type: application/json" \
       --data '{ "service": "'$CI_PROJECT_NAME'", "image": "'$CI_REGISTRY_IMAGE':'$RELEASE_TAG'" }'
     - |
-      curl --request POST \
+      RESPONSE_JSON=$(curl --request POST \
       --form token=$DEPLOY_TRIGGER_TOKEN \
       --form ref=prod \
       --form "variables[TRIGGER_SPECIFIC_JOB]=$CI_PROJECT_NAME" \
       --form "variables[TRIGGER_ENVIRONMENT]=prod" \
-      https://gitlab.com/api/v4/projects/$DEPLOY_PROJECT_ID/trigger/pipeline
+      https://gitlab.com/api/v4/projects/$DEPLOY_PROJECT_ID/trigger/pipeline)
       
       echo $RESPONSE_JSON | jq -r '.web_url'
   when: manual
