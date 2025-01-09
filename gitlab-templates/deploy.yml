@@ -61,9 +61,9 @@ deploy-prod-hetzner:
     - apt-get update && apt-get install -y jq
     - export RELEASE_TAG=$(cat .version)
     - |
-      curl -X PUT $PROD_VERSION_MANAGER_URL/update-image \
+      curl -X PUT $PROD_HETZNER_VERSION_MANAGER_URL/update-image \
       -u $PROD_VERSION_MANAGER_AUTH \
-      -H "Secret: $PROD_VERSION_MANAGER_API_SECRET" \
+      -H "Secret: $PROD_HETZNER_VERSION_MANAGER_API_SECRET" \
       -H "Content-Type: application/json" \
       --data '{ "service": "'$CI_PROJECT_NAME'", "image": "'$CI_REGISTRY_IMAGE':'$RELEASE_TAG'" }'
     - |
