@@ -76,3 +76,29 @@ deploy-prod-hetzner:
       
       echo $RESPONSE_JSON | jq -r '.web_url'
   when: manual
+
+deploy-dev-hetzner:
+  stage: deploy
+  only:
+    refs:
+      - master
+      - main
+  script:
+    - apt-get update && apt-get install -y jq
+    - export RELEASE_TAG=$(cat .version)
+    - |
+      curl -X PUT $DEV_HETZNER_VERSION_MANAGER_URL/update-image \
+      -u $DEV_VERSION_MANAGER_AUTH \
+      -H "Secret: $DEV_HETZNER_VERSION_MANAGER_API_SECRET" \
+      -H "Content-Type: application/json" \
+      --data '{ "service": "'$CI_PROJECT_NAME'", "image": "'$CI_REGISTRY_IMAGE':'$RELEASE_TAG'" }'
+    - |
+      RESPONSE_JSON=$(curl --request POST \
+      --form token=$DEPLOY_TRIGGER_TOKEN \
+      --form ref=dev-hetzner \
+      --form "variables[TRIGGER_SPECIFIC_JOB]=$CI_PROJECT_NAME" \
+      --form "variables[TRIGGER_ENVIRONMENT]=dev-hetzner" \
+      https://gitlab.com/api/v4/projects/$DEPLOY_PROJECT_ID/trigger/pipeline)
+      
+      echo $RESPONSE_JSON | jq -r '.web_url'
+  when: manual
