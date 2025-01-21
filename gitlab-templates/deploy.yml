@@ -62,7 +62,7 @@ deploy-prod-hetzner:
     - export RELEASE_TAG=$(cat .version)
     - |
       curl -X PUT $PROD_HETZNER_VERSION_MANAGER_URL/update-image \
-      -u $PROD_VERSION_MANAGER_AUTH \
+      -u $PROD_HETZNER_VERSION_MANAGER_AUTH \
       -H "Secret: $PROD_HETZNER_VERSION_MANAGER_API_SECRET" \
       -H "Content-Type: application/json" \
       --data '{ "service": "'$CI_PROJECT_NAME'", "image": "'$CI_REGISTRY_IMAGE':'$RELEASE_TAG'" }'
@@ -88,7 +88,7 @@ deploy-dev-hetzner:
     - export RELEASE_TAG=$(cat .version)
     - |
       curl -X PUT $DEV_HETZNER_VERSION_MANAGER_URL/update-image \
-      -u $DEV_VERSION_MANAGER_AUTH \
+      -u $DEV_HETZNER_VERSION_MANAGER_AUTH \
       -H "Secret: $DEV_HETZNER_VERSION_MANAGER_API_SECRET" \
       -H "Content-Type: application/json" \
       --data '{ "service": "'$CI_PROJECT_NAME'", "image": "'$CI_REGISTRY_IMAGE':'$RELEASE_TAG'" }'
